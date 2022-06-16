@@ -1,36 +1,19 @@
-mod data {
-    pub struct CheckingAccount {
-        identifier: &'static str,
-        balance: f32,
-    }
+mod context;
+mod data;
+mod roles;
 
-    impl CheckingAccount {
-        pub fn new(identifier: &'static str, balance: f32) -> CheckingAccount {
-            return CheckingAccount {
-                identifier,
-                balance,
-            };
-        }
+#[macro_use]
+extern crate log;
 
-        pub fn identifier(&self) -> &str {
-            return self.identifier;
-        }
-
-        pub fn balance(&self) -> f32 {
-            return self.balance.clone();
-        }
-
-        pub fn increment(&mut self, amount: f32) -> f32 {
-            self.balance += amount;
-            return self.balance.clone();
-        }
-    }
-}
+use context::MoneyTransferContext;
+use data::Account;
 
 fn main() {
-    let mut account = data::CheckingAccount::new("account#420", 1_000_000.0);
+    pretty_env_logger::init();
 
-    println!("account balance: {:.6}", account.balance());
-    account.increment(500_000.0);
-    println!("account balance: {:.6}", account.balance());
+    let mut account1 = Account::new("account#420", 1_000_000.0);
+    let mut account2 = Account::new("account#720", 1_000_000.0);
+
+    let mut transfer = MoneyTransferContext::new(&mut account1, &mut account2, 150_000.0);
+    transfer.transfer();
 }
