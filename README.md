@@ -1,21 +1,31 @@
 # Rust DCI Example
 
+DCI (Data, Context, Interaction) is an object-oriented design paradigm
+that aims to improve readability and understandability of code.
+
+Objects (**Data**) within a particular scenario (**Context**),  
+collaborate by playing specific roles (**Interaction**),  
+separating what _the system is_ (the domain) from what _the system does_ (use-cases and scenarios).
+
+Maintaining the interaction's dynamic behavior and the data object's static properties separately,  
+DCI aims to clarify and simplify the system structure, making it more intuitive and human-friendly.
+
 ## Data
 
-The data remains "_what the system is_."  
-The data part of the DCI architecture is its (relatively) static data model with relations.
+Data represents the objects in your system or _"what the system is"_.  
+These objects are static and don't change over time, they also contain relations.
 
 ## Context
 
-The context is the class (or its instance) whose code includes the Roles for a given algorithm, scenario, or use case,
-as well as the code to map these Roles into objects at run time and to enact the use case.
+A context represents a scenario or use-case within which the data objects interact.  
+Each context corresponds to a system operation and is triggered by a specific event.  
+It also has code to mapping roles into objects at run time and to enact the use-case or scenario.
 
 ## Interaction
 
-The interaction is "_what the system does_."  
-The interaction is implemented as Roles which are played by objects at run time.  
-These objects combine the state and methods of a data (domain)
-object with methods (but no state, as Roles are stateless) from one or more Roles.
+Interaction is implemented as _roles_ are stateless and are _played_ by _objects_ at run time.  
+These objects **combine** the _state_ and _methods_ of a _data_ (domain).  
+It represents _"what the system does"_.
 
 ## This Example
 
