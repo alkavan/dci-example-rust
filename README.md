@@ -38,9 +38,13 @@ in your machine environment.
 ### Output
 
 ```
- INFO  dci_example_rust::context > balance of account#420: 1000000.000000
- INFO  dci_example_rust::context > balance of account#720: 1000000.000000
- INFO  dci_example_rust::context > transferred 150000.000000 from account#420 to account#720
- INFO  dci_example_rust::context > balance of account#420: 850000.000000
- INFO  dci_example_rust::context > balance of account#720: 1150000.000000
+ INFO  dci_example_rust::context > [account:withdrawal  ] account#7777 1000000.000000 - 42000.000000 = 958000.000000
+ INFO  dci_example_rust::context > [account:deposit     ] account#9999 1000000.000000 + 42000.000000 = 1042000.000000
+ INFO  dci_example_rust::context > [bank:money_transfer ] transferred 42000.000000 from account#7777 to account#9999
+ INFO  dci_example_rust::context > [account:withdrawal  ] account#8888 1000000.000000 - 69000.000000 = 931000.000000
+ INFO  dci_example_rust::context > [account:deposit     ] account#9999 1042000.000000 + 69000.000000 = 1111000.000000
+ INFO  dci_example_rust::context > [bank:money_transfer ] transferred 69000.000000 from account#8888 to account#9999
+ INFO  dci_example_rust::context > [account:withdrawal  ] account#9999 1111000.000000 - 96000.000000 = 1015000.000000
+ INFO  dci_example_rust::context > [account:deposit     ] account#7777 958000.000000 + 96000.000000 = 1054000.000000
+ INFO  dci_example_rust::context > [bank:money_transfer ] transferred 96000.000000 from account#9999 to account#7777
 ```
