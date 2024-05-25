@@ -1,5 +1,3 @@
-use std::fmt;
-
 pub struct Account {
     pub(crate) id: u64,
     pub(crate) balance: f64,
@@ -34,11 +32,7 @@ pub enum AccountOperation {
     Withdrawal,
 }
 
-impl fmt::Display for AccountOperation {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            AccountOperation::Deposit => write!(f, "deposit"),
-            AccountOperation::Withdrawal => write!(f, "withdrawal"),
-        }
-    }
+#[derive(Clone, Copy)]
+pub enum BankOperation {
+    MoneyTransfer,
 }
