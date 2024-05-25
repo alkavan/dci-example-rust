@@ -1,11 +1,19 @@
+use crate::context::AccountOperationContext;
+use crate::domain::Account;
+
 pub trait CheckingAccount {
-    fn increment(&mut self, amount: f64) -> f64;
+    fn deposit(account: &mut Account, amount: f64) -> f64;
 }
 
 pub trait SavingsAccount {
-    fn decrement(&mut self, amount: f64) -> f64;
+    fn withdrawal(account: &mut Account, amount: f64) -> f64;
 }
 
-pub trait AccountLogger {
-    fn print_balance(&self);
+pub trait SynchronizedAccount {
+    fn lock(account: &mut Account) -> bool;
+    fn unlock(account: &mut Account) -> bool;
+}
+
+pub trait OperationLogger {
+    fn log_account_operation(account_operation: AccountOperationContext);
 }
