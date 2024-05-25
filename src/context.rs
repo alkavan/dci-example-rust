@@ -174,13 +174,13 @@ impl OperationLogger for MoneyTransferContext {
         }
     }
 
-    fn log_bank_operation(bank_operation_context: BankOperationContext) {
-        let operation = bank_operation_context.operation;
+    fn log_bank_operation(bank_operation: BankOperationContext) {
+        let operation = bank_operation.operation;
         match operation {
             MoneyTransfer => {
-                let amount = bank_operation_context.amount.unwrap();
-                let account_id_from = bank_operation_context.source_account_id;
-                let account_id_to = bank_operation_context.destination_account_id;
+                let amount = bank_operation.amount.unwrap();
+                let account_id_from = bank_operation.source_account_id;
+                let account_id_to = bank_operation.destination_account_id;
                 info!(
                     "[{}] transferred {:.6} from account#{} to account#{}",
                     operation, amount, account_id_from, account_id_to

@@ -41,7 +41,7 @@ fn main() {
     let transfer = MoneyTransferContext::new(69_000.0, account2_id, account3_id);
     bank.account_transfer(transfer);
 
-    // money transfer 2
+    // money transfer 3
     let transfer = MoneyTransferContext::new(96_000.0, account3_id, account1_id);
     bank.account_transfer(transfer);
 
