@@ -1,8 +1,9 @@
 extern crate pretty_env_logger;
 
-use crate::domain::{Account, AccountOperation};
+use crate::domain::{Account, AccountOperation, BankOperation};
 use crate::roles::{CheckingAccount, OperationLogger, SavingsAccount, SynchronizedAccount};
 
+use crate::domain::BankOperation::MoneyTransfer;
 use std::collections::HashMap;
 use std::collections::VecDeque;
 
@@ -14,7 +15,7 @@ pub struct AccountOperationContext {
 }
 
 impl AccountOperationContext {
-    pub fn new_transfer(
+    pub fn new(
         operation: AccountOperation,
         account_id: u64,
         amount: f64,
@@ -25,6 +26,28 @@ impl AccountOperationContext {
             account_id,
             amount: Some(amount),
             balance: Some(balance),
+        }
+    }
+}
+
+pub struct BankOperationContext {
+    operation: BankOperation,
+    source_account_id: u64,
+    destination_account_id: u64,
+    amount: Option<f64>,
+}
+
+impl BankOperationContext {
+    pub fn new(
+        amount: f64,
+        source_account_id: u64,
+        destination_account_id: u64,
+    ) -> BankOperationContext {
+        BankOperationContext {
+            operation: MoneyTransfer,
+            source_account_id,
+            destination_account_id,
+            amount: Some(amount),
         }
     }
 }
@@ -83,36 +106,44 @@ impl MoneyTransferContext {
     }
 
     pub fn transfer(&mut self, accounts: &mut AccountMap) {
-        let source = accounts.get_mut(&self.source_account_id).unwrap();
         let amount = self.amount.clone();
 
+        let source = accounts.get_mut(&self.source_account_id).unwrap();
+
+        // withdrawal from source account
         Account::lock(source);
         Account::withdrawal(source, amount);
         Account::unlock(source);
 
-        MoneyTransferContext::log_account_operation(AccountOperationContext::new_transfer(
+        let account_operation = AccountOperationContext::new(
             AccountOperation::Withdrawal,
             source.id(),
             amount,
             source.balance(),
-        ));
+        );
+
+        MoneyTransferContext::log_account_operation(account_operation);
 
         let destination = accounts.get_mut(&self.destination_account_id).unwrap();
+
+        // deposit to destination account
         Account::lock(destination);
         Account::deposit(destination, amount);
         Account::lock(destination);
 
-        MoneyTransferContext::log_account_operation(AccountOperationContext::new_transfer(
+        let account_operation = AccountOperationContext::new(
             AccountOperation::Deposit,
             destination.id(),
             amount,
             destination.balance(),
-        ));
-
-        info!(
-            "transferred {:.6} from account#{} to account#{}",
-            self.amount, self.source_account_id, self.destination_account_id
         );
+
+        MoneyTransferContext::log_account_operation(account_operation);
+
+        let bank_operation =
+            BankOperationContext::new(amount, self.source_account_id, self.destination_account_id);
+
+        MoneyTransferContext::log_bank_operation(bank_operation);
     }
 }
 
@@ -127,8 +158,8 @@ impl OperationLogger for MoneyTransferContext {
                 let amount = account_operation.amount.unwrap();
                 let account_balance_before = account_balance - amount;
                 info!(
-                    "account#{} [{}] {:.6} + {:.6} = {:.6}",
-                    account_id, operation, account_balance_before, amount, account_balance
+                    "[{}] account#{} {:.6} + {:.6} = {:.6}",
+                    operation, account_id, account_balance_before, amount, account_balance
                 );
             }
             AccountOperation::Withdrawal => {
@@ -136,8 +167,23 @@ impl OperationLogger for MoneyTransferContext {
                 let amount = account_operation.amount.unwrap();
                 let account_balance_before = account_balance + amount;
                 info!(
-                    "account#{} [{}] {:.6} - {:.6} = {:.6}",
-                    account_id, operation, account_balance_before, amount, account_balance
+                    "[{}] account#{:<} {:.6} - {:.6} = {:.6}",
+                    operation, account_id, account_balance_before, amount, account_balance
+                );
+            }
+        }
+    }
+
+    fn log_bank_operation(bank_operation_context: BankOperationContext) {
+        let operation = bank_operation_context.operation;
+        match operation {
+            MoneyTransfer => {
+                let amount = bank_operation_context.amount.unwrap();
+                let account_id_from = bank_operation_context.source_account_id;
+                let account_id_to = bank_operation_context.destination_account_id;
+                info!(
+                    "[{}] transferred {:.6} from account#{} to account#{}",
+                    operation, amount, account_id_from, account_id_to
                 );
             }
         }

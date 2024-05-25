@@ -1,4 +1,4 @@
-use crate::context::AccountOperationContext;
+use crate::context::{AccountOperationContext, BankOperationContext};
 use crate::domain::Account;
 
 pub trait CheckingAccount {
@@ -16,4 +16,5 @@ pub trait SynchronizedAccount {
 
 pub trait OperationLogger {
     fn log_account_operation(account_operation: AccountOperationContext);
+    fn log_bank_operation(bank_operation_context: BankOperationContext);
 }
