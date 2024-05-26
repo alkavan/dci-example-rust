@@ -69,7 +69,7 @@ impl AccountTransaction {
     }
 
     pub fn destination_account_id(&self) -> u64 {
-        self.source_account_id
+        self.destination_account_id
     }
 
     pub fn destination_balance_before(&self) -> f64 {

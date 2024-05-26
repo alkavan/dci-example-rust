@@ -1,8 +1,6 @@
 extern crate pretty_env_logger;
 
-use crate::domain::{
-    Account, AccountOperation, AccountTransaction, AccountTransactionError, BankOperation,
-};
+use crate::domain::{Account, AccountOperation, AccountTransaction, AccountTransactionError};
 use crate::roles::{
     AccountOperationLogger, BankOperationLogger, CheckingAccount, SavingsAccount,
     SynchronizedAccount,
@@ -11,51 +9,6 @@ use crate::roles::{
 use crate::domain::BankOperation::MoneyTransfer;
 use std::collections::HashMap;
 use std::collections::VecDeque;
-
-pub struct AccountOperationContext {
-    pub(crate) operation: AccountOperation,
-    pub(crate) account_id: u64,
-    pub(crate) amount: Option<f64>,
-    pub(crate) balance: Option<f64>,
-}
-
-impl AccountOperationContext {
-    pub fn new(
-        operation: AccountOperation,
-        account_id: u64,
-        amount: f64,
-        balance: f64,
-    ) -> AccountOperationContext {
-        AccountOperationContext {
-            operation,
-            account_id,
-            amount: Some(amount),
-            balance: Some(balance),
-        }
-    }
-}
-
-pub struct BankOperationContext {
-    pub(crate) operation: BankOperation,
-    pub(crate) source_account_id: u64,
-    pub(crate) destination_account_id: u64,
-    pub(crate) amount: Option<f64>,
-}
-
-impl BankOperationContext {
-    pub fn new(
-        amount: f64,
-        source_account_id: u64,
-        destination_account_id: u64,
-    ) -> BankOperationContext {
-        BankOperationContext {
-            operation: MoneyTransfer,
-            source_account_id,
-            destination_account_id,
-            amount: Some(amount),
-        }
-    }
-}
 
 pub struct MoneyTransferContext {
     source_account_id: u64,
