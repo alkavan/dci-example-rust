@@ -1,6 +1,4 @@
-use crate::context::{
-    AccountOperationContext, BankContext, BankOperationContext, MoneyTransferContext,
-};
+use crate::context::BankContext;
 use crate::domain::BankOperation::MoneyTransfer;
 use crate::domain::{Account, AccountOperation, AccountTransaction, BankOperation};
 
@@ -12,7 +10,7 @@ pub trait CheckingAccount {
 impl CheckingAccount for Account {
     fn deposit(account: &mut Account, amount: f64) -> f64 {
         account.balance += amount;
-        account.balance.clone()
+        account.balance()
     }
 }
 
@@ -20,7 +18,7 @@ impl CheckingAccount for Account {
 impl SavingsAccount for Account {
     fn withdrawal(account: &mut Account, amount: f64) -> f64 {
         account.balance -= amount;
-        account.balance.clone()
+        account.balance()
     }
 }
 
@@ -29,12 +27,17 @@ pub trait SavingsAccount {
 }
 
 // Account role for locking the account for operations
+pub trait SynchronizedAccount {
+    fn lock(account: &mut Account) -> bool;
+    fn unlock(account: &mut Account) -> bool;
+}
+
 impl SynchronizedAccount for Account {
     fn lock(account: &mut Account) -> bool {
         // do operation only if account is unlocked.
         if !account.locked() {
             account.locked = true;
-            return account.locked;
+            return true;
         }
         return false;
     }
@@ -47,11 +50,6 @@ impl SynchronizedAccount for Account {
         }
         return false;
     }
-}
-
-pub trait SynchronizedAccount {
-    fn lock(account: &mut Account) -> bool;
-    fn unlock(account: &mut Account) -> bool;
 }
 
 // Account operation logger
