@@ -122,7 +122,7 @@ impl MoneyTransferContext {
             source.balance(),
         );
 
-        MoneyTransferContext::log_account_operation(account_operation);
+        MoneyTransferContext::log_account_operation(&account_operation);
 
         let destination = accounts.get_mut(&self.destination_account_id).unwrap();
 
@@ -138,17 +138,17 @@ impl MoneyTransferContext {
             destination.balance(),
         );
 
-        MoneyTransferContext::log_account_operation(account_operation);
+        MoneyTransferContext::log_account_operation(&account_operation);
 
         let bank_operation =
             BankOperationContext::new(amount, self.source_account_id, self.destination_account_id);
 
-        MoneyTransferContext::log_bank_operation(bank_operation);
+        MoneyTransferContext::log_bank_operation(&bank_operation);
     }
 }
 
 impl OperationLogger for MoneyTransferContext {
-    fn log_account_operation(account_operation: AccountOperationContext) {
+    fn log_account_operation(account_operation: &AccountOperationContext) {
         let operation = account_operation.operation.clone();
         let account_id = account_operation.account_id;
 
@@ -174,7 +174,7 @@ impl OperationLogger for MoneyTransferContext {
         }
     }
 
-    fn log_bank_operation(bank_operation: BankOperationContext) {
+    fn log_bank_operation(bank_operation: &BankOperationContext) {
         let operation = bank_operation.operation;
         match operation {
             MoneyTransfer => {
