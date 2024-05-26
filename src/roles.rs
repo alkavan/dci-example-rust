@@ -15,6 +15,6 @@ pub trait SynchronizedAccount {
 }
 
 pub trait OperationLogger {
-    fn log_account_operation(account_operation: AccountOperationContext);
-    fn log_bank_operation(bank_operation: BankOperationContext);
+    fn log_account_operation(account_operation: &AccountOperationContext);
+    fn log_bank_operation(bank_operation: &BankOperationContext);
 }
