@@ -10,6 +10,9 @@ use crate::domain::BankOperation::MoneyTransfer;
 use std::collections::HashMap;
 use std::collections::VecDeque;
 
+/*
+ * the bank use-case will use a money transfer context.
+ */
 pub struct MoneyTransferContext {
     source_account_id: u64,
     destination_account_id: u64,
@@ -37,7 +40,9 @@ impl MoneyTransferContext {
 
         let source = accounts.get_mut(&self.source_account_id).unwrap();
 
-        // withdrawal from source account
+        /*
+         * check account lock status and withdrawal from a source account.
+         */
         if !Account::lock(source) {
             return Err(AccountTransactionError::new(
                 source.id(),
@@ -50,7 +55,9 @@ impl MoneyTransferContext {
 
         let destination = accounts.get_mut(&self.destination_account_id).unwrap();
 
-        // deposit to destination account
+        /*
+         * check account lock status and deposit to a destination account.
+         */
         if !Account::lock(destination) {
             return Err(AccountTransactionError::new(
                 destination.id(),
@@ -72,9 +79,13 @@ impl MoneyTransferContext {
 }
 
 /*
- * represents a list of account, not actually part of the business domain.
+ * represents a list of an account, not part of the business domain.
  */
 pub(crate) type AccountMap = HashMap<u64, Account>;
+
+/*
+ * the bank use-case will use a queue of money transfer context.
+ */
 pub(crate) type MoneyTransferQueue<'a> = VecDeque<MoneyTransferContext>;
 
 /*
@@ -85,6 +96,9 @@ pub struct BankContext<'a> {
     transfer_queue: &'a mut MoneyTransferQueue<'a>,
 }
 
+/**
+ * implementation of bank money transfer.
+ */
 impl BankContext<'_> {
     pub fn new<'a>(
         accounts: &'a mut HashMap<u64, Account>,
@@ -101,26 +115,36 @@ impl BankContext<'_> {
     }
 
     pub fn apply_a2a_transfers(&mut self) {
-        while let Some(mut money_transfer_context) = self.transfer_queue.pop_front() {
-            let maybe_transaction = money_transfer_context.transfer(self.accounts);
-
-            if maybe_transaction.is_err() {
-                let err = maybe_transaction.err().unwrap();
-                info!("[error] account#{} : {}", err.account_id, err.message);
-                continue;
-            }
-
-            let transaction = maybe_transaction.ok().unwrap();
-
-            <BankContext<'_> as AccountOperationLogger>::log(
-                &AccountOperation::Withdrawal,
-                &transaction,
-            );
-            <BankContext<'_> as AccountOperationLogger>::log(
-                &AccountOperation::Deposit,
-                &transaction,
-            );
-            <BankContext<'_> as BankOperationLogger>::log(&MoneyTransfer, &transaction);
+        while let Some(money_transfer_context) = self.next_transfer() {
+            Self::process_transfer(money_transfer_context, self.accounts);
         }
+    }
+
+    fn next_transfer(&mut self) -> Option<MoneyTransferContext> {
+        self.transfer_queue.pop_front()
+    }
+
+    fn process_transfer(
+        mut money_transfer_context: MoneyTransferContext,
+        accounts: &mut AccountMap,
+    ) {
+        let maybe_transaction = money_transfer_context.transfer(accounts);
+
+        if maybe_transaction.is_err() {
+            let err = maybe_transaction.err().unwrap();
+            error!("[error] account#{} : {}", err.account_id, err.message);
+            return;
+        }
+
+        let transaction = maybe_transaction.ok().unwrap();
+
+        <BankContext<'_> as AccountOperationLogger>::log(
+            &AccountOperation::Withdrawal,
+            &transaction,
+        );
+
+        <BankContext<'_> as AccountOperationLogger>::log(&AccountOperation::Deposit, &transaction);
+
+        <BankContext<'_> as BankOperationLogger>::log(&MoneyTransfer, &transaction);
     }
 }

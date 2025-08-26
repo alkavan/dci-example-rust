@@ -1,3 +1,8 @@
+use std::fmt;
+
+/*
+ * Representing a bank account.
+ */
 pub struct Account {
     pub(crate) id: u64,
     pub(crate) balance: f64,
@@ -26,6 +31,9 @@ impl Account {
     }
 }
 
+/*
+ * Representing a transaction between two bank accounts.
+ */
 #[derive(Clone, Copy)]
 pub struct AccountTransaction {
     amount: f64,
@@ -81,6 +89,9 @@ impl AccountTransaction {
     }
 }
 
+/*
+ * Representing an error type for account transaction.
+ */
 pub struct AccountTransactionError {
     pub(crate) account_id: u64,
     pub(crate) message: String,
@@ -104,4 +115,46 @@ pub enum AccountOperation {
 #[derive(Clone, Copy)]
 pub enum BankOperation {
     MoneyTransfer,
+}
+
+/*
+ * Trait for operations that can be padded for display.
+ */
+pub trait OperationFormat {
+    fn format(&self) -> String;
+}
+
+/*
+ * Display trait implementation for account operation.
+ */
+impl fmt::Display for AccountOperation {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            AccountOperation::Deposit => write!(f, "account:deposit"),
+            AccountOperation::Withdrawal => write!(f, "account:withdrawal"),
+        }
+    }
+}
+
+impl OperationFormat for AccountOperation {
+    fn format(&self) -> String {
+        format!("{}", self)
+    }
+}
+
+/*
+ * Display trait implementation for bank operation.
+ */
+impl fmt::Display for BankOperation {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            BankOperation::MoneyTransfer => write!(f, "bank:money_transfer"),
+        }
+    }
+}
+
+impl OperationFormat for BankOperation {
+    fn format(&self) -> String {
+        format!("{}", self)
+    }
 }

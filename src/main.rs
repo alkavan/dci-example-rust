@@ -1,15 +1,12 @@
 mod context;
-mod display;
 mod domain;
 mod roles;
 
 #[macro_use]
 extern crate log;
 
+use context::{AccountMap, BankContext, MoneyTransferContext, MoneyTransferQueue};
 use domain::Account;
-
-use context::BankContext;
-use context::{AccountMap, MoneyTransferContext, MoneyTransferQueue};
 
 fn main() {
     pretty_env_logger::init();
@@ -19,7 +16,7 @@ fn main() {
     let account2_id = 8888u64;
     let account3_id = 9999u64;
 
-    // this map will store account in the required lifetime.
+    // this map will store an account in the required lifetime.
     let mut accounts = AccountMap::new();
 
     // account objects are being moved here and cannot be used in this scope anymore.
@@ -30,7 +27,7 @@ fn main() {
     // money transfer queue
     let mut transfer_queue = MoneyTransferQueue::new();
 
-    // create bank entity
+    // bank entity
     let mut bank = BankContext::new(&mut accounts, &mut transfer_queue);
 
     // money transfer 1
@@ -45,6 +42,6 @@ fn main() {
     let transfer = MoneyTransferContext::new(96_000.0, account3_id, account1_id);
     bank.account_transfer(transfer);
 
-    // in some later time, execute all transfers in bank queue.
+    // at some later time, execute all transfers in the bank queue.
     bank.apply_a2a_transfers();
 }
